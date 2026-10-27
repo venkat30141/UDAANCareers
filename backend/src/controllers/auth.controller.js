@@ -30,6 +30,7 @@ const verifyEmailSchema = z.object({
 // REGISTER CONTROLLER
 // ============================================================
 
+
 export async function register(req, res, next) {
   try {
     const validation = registerSchema.safeParse(req.body);
@@ -49,6 +50,7 @@ export async function register(req, res, next) {
       fullName: validation.data.fullName,
       email: validation.data.email,
       password: validation.data.password,
+      role: validation.data.role,
     });
 
     return res.status(201).json({
@@ -70,6 +72,7 @@ export async function register(req, res, next) {
     return next(error);
   }
 }
+
 
 // ============================================================
 // VERIFY EMAIL CONTROLLER

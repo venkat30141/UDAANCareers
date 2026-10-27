@@ -6,6 +6,8 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.routes.js";
 import { errorHandler } from "./middleware/error.middleware.js";
+import profileRoutes from "./routes/profile.routes.js";
+import companyRoutes from "./routes/company.routes.js";
 
 dotenv.config();
 
@@ -22,6 +24,8 @@ app.use(express.json({ limit: "1mb" }));
 app.use(morgan("dev"));
 app.use("/api/auth", authRoutes);
 app.use(errorHandler);
+app.use("/api/profiles", profileRoutes);
+app.use("/api/companies", companyRoutes);
 
 app.get("/", (req, res) => {
   res.json({

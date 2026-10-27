@@ -23,6 +23,10 @@ export const registerSchema = z.object({
     .regex(/[A-Z]/, "Password must contain an uppercase letter")
     .regex(/[0-9]/, "Password must contain a number")
     .regex(/[^A-Za-z0-9]/, "Password must contain a special character"),
+
+  role: z
+    .enum(["job_seeker", "employer"])
+    .default("job_seeker"),
 });
 
 export const loginSchema = z.object({

@@ -18,7 +18,18 @@ function createHttpError(message, statusCode) {
 // REGISTER USER AND SEND EMAIL VERIFICATION OTP
 // ============================================================
 
-export async function registerUser({ fullName, email, password }) {
+
+export async function registerUser({
+  fullName,
+  email,
+  password,
+  role = "job_seeker",
+}) {
+  // Only allow public registration for these two roles.
+  if (!["job_seeker", "employer"].includes(role)) {
+    throw createHttpError("Invalid registration role.", 400);
+  }
+
   const normalizedEmail = email.trim().toLowerCase();
   const passwordHash = await bcrypt.hash(password, 12);
 
@@ -51,6 +62,7 @@ export async function registerUser({ fullName, email, password }) {
       );
     }
 
+    // Insert the requested, validated registration role.
     const userResult = await client.query(
       `INSERT INTO users (
          full_name,
@@ -59,7 +71,7 @@ export async function registerUser({ fullName, email, password }) {
          role,
          is_email_verified
        )
-       VALUES ($1, $2, $3, 'job_seeker', FALSE)
+       VALUES ($1, $2, $3, $4, FALSE)
        RETURNING
          id,
          full_name,
@@ -67,12 +79,12 @@ export async function registerUser({ fullName, email, password }) {
          role,
          is_email_verified,
          created_at`,
-      [fullName, normalizedEmail, passwordHash]
+      [fullName, normalizedEmail, passwordHash, role]
     );
 
     user = userResult.rows[0];
 
-    // This function uses the existing transaction client.
+    // Keep the existing OTP workflow unchanged.
     const otpResult = await createEmailOtp(
       normalizedEmail,
       client
@@ -142,6 +154,7 @@ export async function registerUser({ fullName, email, password }) {
     message: "Account created. Check your email for the verification code.",
   };
 }
+
 
 // ============================================================
 // VERIFY EMAIL OTP
