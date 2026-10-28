@@ -82,3 +82,17 @@ export async function updateMyCompany(ownerUserId, companyId, data) {
 
   return result.rows[0] ?? null;
 }
+
+
+export async function updateCompanyVerification(companyId, status) {
+  const result = await pool.query(
+    `UPDATE companies
+     SET verification_status = $2,
+         updated_at = NOW()
+     WHERE id = $1
+     RETURNING ${COMPANY_FIELDS}`,
+    [companyId, status]
+  );
+
+  return result.rows[0] ?? null;
+}

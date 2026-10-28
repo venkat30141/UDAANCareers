@@ -3,6 +3,7 @@ import {
   createCompany,
   getMyCompanies,
   updateMyCompany,
+  updateCompanyVerification,
 } from "../services/company.service.js";
 
 const ALLOWED_FIELDS = [
@@ -113,6 +114,50 @@ export async function updateMyCompanyDetails(req, res, next) {
     return res.status(200).json({
       success: true,
       message: "Company details updated successfully.",
+      data: company,
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+
+export async function verifyCompany(req, res, next) {
+  try {
+    const { companyId } = req.params;
+
+    if (!/^[1-9]\d*$/.test(companyId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid company ID.",
+      });
+    }
+
+    const { verification_status } = req.body ?? {};
+
+    if (!["verified", "rejected"].includes(verification_status)) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "verification_status must be either 'verified' or 'rejected'.",
+      });
+    }
+
+    const company = await updateCompanyVerification(
+      companyId,
+      verification_status
+    );
+
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        message: "Company not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Company ${verification_status} successfully.`,
       data: company,
     });
   } catch (error) {
